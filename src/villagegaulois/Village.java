@@ -70,6 +70,56 @@ public class Village {
 		 }
 		 return chaine.toString();
 	 }
+	 
+	 public String rechercherVendeursProduit(String produit) {
+			StringBuilder chaine = new StringBuilder();
+			Etal[] etalsOccupes = marche.trouverEtals(produit);
+			if (etalsOccupes.length==0) {
+				chaine.append("Il n'y a pas de vendeur qui propose des "+produit+" au marché.");
+			} else if (etalsOccupes.length==1){
+				chaine.append("Seul le vendeur "+etalsOccupes[0].getVendeur().getNom()+" propose des "+produit+" au marché.");
+			} else {
+				chaine.append("Les vendeurs qui proposent des "+produit+" sont :\n");
+				for (int i=0;i<etalsOccupes.length;i++) {
+					chaine.append("- "+etalsOccupes[i].getVendeur().getNom()+"\n");
+				}
+			}
+			return chaine.toString();
+		}
+	 
+	 public Etal rechercherEtal(Gaulois vendeur) {
+			return marche.trouverVendeur(vendeur);
+		}
+		
+	public String partirVendeur(Gaulois vendeur) {
+		StringBuilder chaine = new StringBuilder();
+		Etal etal = marche.trouverVendeur(vendeur);
+		chaine.append(etal.libererEtal());
+		return chaine.toString();
+	}
+	
+	public String afficherMarche() {
+		StringBuilder chaine = new StringBuilder();
+		chaine.append("Le marché du village \""+nom+"\" possède plusieurs étals :\n");
+		Etal[] etals =marche.etals;
+		int etal=0;
+		int etalOccupe=0;
+		while (etal<etals.length) {
+			if (etals[etal].isEtalOccupe()) {
+				chaine.append(etals[etal].afficherEtal());
+				etalOccupe+=1;
+			}
+			etal+=1;
+		}
+		int etalRes=etals.length-etalOccupe;
+		if (etalRes>0) {
+			chaine.append("Il reste " + etalRes + " étals non utilisées dans le marché.");
+		}
+		
+		return chaine.toString();
+	}
+
+		
 	
 	private static class Marche {
 		private Etal[] etals;
@@ -99,11 +149,19 @@ public class Village {
 		}
 		
 		private Etal[] trouverEtals(String produit) {
-			Etal[] etalsOccupes = null;
 			int etal = 0;
 			int nbEtals = 0;
 			while (etal<etals.length) {
-				if (etals[etal].isEtalOccupe()) {
+				if ((etals[etal].isEtalOccupe())&&(etals[etal].contientProduit(produit))) {
+					nbEtals+=1;
+				}
+				etal+=1;
+			}
+			Etal[] etalsOccupes = new Etal[nbEtals];
+			etal=0;
+			nbEtals=0;
+			while (etal<etals.length) {
+				if ((etals[etal].isEtalOccupe())&&(etals[etal].contientProduit(produit))) {
 					etalsOccupes[nbEtals]=etals[etal];
 					nbEtals+=1;
 				}
